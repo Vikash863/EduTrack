@@ -29,7 +29,7 @@ const Navbar = () => {
         <div className='flex flex-wrap items-center gap-4'>
           <Link to='/' className='hover:underline'>Home</Link>
           {isAuthenticated && <Link to='/dashboard' className='hover:underline'>Dashboard</Link>}
-          {isAuthenticated && isAdmin && <Link to='/students' className='hover:underline'>Students</Link>}
+          {isAuthenticated && (isAdmin || isTeacher) && <Link to='/students' className='hover:underline'>Students</Link>}
           {isAuthenticated && (isAdmin || isTeacher) && <Link to='/subjects' className='hover:underline'>Subjects</Link>}
           {isAuthenticated && (isAdmin || isTeacher) && <Link to='/results' className='hover:underline'>Results</Link>}
           {isAuthenticated && (isAdmin || isTeacher) && <Link to='/analytics' className='hover:underline'>Analytics</Link>}

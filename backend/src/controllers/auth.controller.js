@@ -18,7 +18,7 @@ export const registerTeacher = async (req, res) => {
     const teacher = new Teacher({ name, email, password, department });
     await teacher.save();
 
-    const token = generateToken(teacher._id);
+    const token = generateToken(teacher._id, teacher.role || 'teacher');
 
     res.status(201).json({
       success: true,
@@ -29,6 +29,7 @@ export const registerTeacher = async (req, res) => {
         name: teacher.name,
         email: teacher.email,
         department: teacher.department,
+        role: teacher.role || 'teacher',
       },
     });
   } catch (error) {
@@ -55,7 +56,8 @@ export const loginTeacher = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = generateToken(teacher._id);
+    const role = teacher.role || 'teacher';
+    const token = generateToken(teacher._id, role);
 
     res.status(200).json({
       success: true,
@@ -66,6 +68,7 @@ export const loginTeacher = async (req, res) => {
         name: teacher.name,
         email: teacher.email,
         department: teacher.department,
+        role,
       },
     });
   } catch (error) {

@@ -6,6 +6,7 @@ import { getStudents, addStudent, deleteStudent, updateStudent } from '../servic
 export default function Students() {
   const { user } = useContext(AuthContext);
   const isAdmin = user?.role === 'admin';
+  const canManageStudents = ['admin', 'teacher'].includes(user?.role);
   const [students, setStudents] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -106,7 +107,7 @@ export default function Students() {
         {!isAdmin && (
           <div className='mb-6 rounded-3xl border border-amber-300 bg-amber-50 p-4 text-amber-900'>
             <p className='font-semibold'>Teacher view</p>
-            <p className='text-sm'>Teachers can review student information here, but student creation and edits are restricted to admins.</p>
+            <p className='text-sm'>Teachers can review and manage student information here.</p>
           </div>
         )}
 
@@ -146,7 +147,7 @@ export default function Students() {
           </div>
 
           <div className='flex items-end'>
-            {isAdmin ? (
+            {canManageStudents ? (
               <button
                 onClick={() => {
                   setShowForm(!showForm);
@@ -172,7 +173,7 @@ export default function Students() {
         </div>
 
         {/* Form */}
-        {showForm && isAdmin && (
+        {showForm && canManageStudents && (
           <form onSubmit={handleSubmit} className='mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg'>
             <input
               name='rollNumber'

@@ -25,6 +25,11 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a department'],
     },
+    role: {
+      type: String,
+      enum: ['teacher', 'admin'],
+      default: 'teacher',
+    },
   },
   { timestamps: true }
 );

@@ -5,11 +5,13 @@ import { getSubjects, addSubject, updateSubject, deleteSubject } from '../servic
 
 export default function Subjects() {
   const { user } = useContext(AuthContext);
-  const isAdmin = user?.role === 'admin';
+  const canManageSubjects = ['admin', 'teacher'].includes(user?.role);
   const [subjects, setSubjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({ semester: '', branch: '' });
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({ subjectName: '', subjectCode: '', semester: '1', branch: 'CSE', credits: 3 });
   const navigate = useNavigate();
 
@@ -17,12 +19,12 @@ export default function Subjects() {
 
   useEffect(() => {
     fetchSubjects();
-  }, []);
+  }, [filters]);
 
   const fetchSubjects = async () => {
     try {
       setLoading(true);
-      const response = await getSubjects();
+      const response = await getSubjects(filters);
       setSubjects(response.data.subjects || []);
     } catch (error) {
       alert('Error fetching subjects');
@@ -30,6 +32,23 @@ export default function Subjects() {
       setLoading(false);
     }
   };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredSubjects = subjects.filter((subject) => {
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      subject.subjectName.toLowerCase().includes(searchTerm) ||
+      subject.subjectCode.toLowerCase().includes(searchTerm)
+    );
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -98,23 +117,31 @@ export default function Subjects() {
             <h1 className='text-3xl font-bold text-gray-800'>Subjects</h1>
             <p className='text-gray-600'>Manage subject codes, titles, and semesters.</p>
           </div>
-          {isAdmin ? (
-            <button
-              onClick={() => {
-                setShowForm((prev) => !prev);
-                setEditId(null);
-                setFormData({ subjectName: '', subjectCode: '', semester: '1' });
-              }}
-              className='rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700'
-            >
-              {showForm ? 'Cancel' : 'Add Subject'}
-            </button>
-          ) : (
-            <div className='rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>View only for teachers</div>
-          )}
+          <div className='flex flex-wrap gap-3 items-center'>
+            <div className='rounded-3xl bg-slate-100 px-4 py-3 text-sm font-medium text-slate-700'>
+              Total subjects: {subjects.length}
+            </div>
+            <div className='rounded-3xl bg-slate-100 px-4 py-3 text-sm font-medium text-slate-700'>
+              Showing: {filteredSubjects.length}
+            </div>
+            {canManageSubjects ? (
+              <button
+                onClick={() => {
+                  setShowForm((prev) => !prev);
+                  setEditId(null);
+                  setFormData({ subjectName: '', subjectCode: '', semester: '1', branch: 'CSE', credits: 3 });
+                }}
+                className='rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700'
+              >
+                {showForm ? 'Cancel' : 'Add Subject'}
+              </button>
+            ) : (
+              <div className='rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900'>Login as a teacher or admin to manage subjects</div>
+            )}
+          </div>
         </div>
 
-        {showForm && isAdmin && (
+        {showForm && canManageSubjects && (
           <form onSubmit={handleSubmit} className='mb-6 grid gap-4 md:grid-cols-4'>
             <input
               type='text'
@@ -175,11 +202,58 @@ export default function Subjects() {
           </form>
         )}
 
+        <div className='mb-5 grid gap-4 md:grid-cols-3'>
+          <input
+            type='text'
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder='Search by subject or code'
+            className='w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-200'
+          />
+          <select
+            name='semester'
+            value={filters.semester}
+            onChange={handleFilterChange}
+            className='w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm'
+          >
+            <option value=''>All Semesters</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+              <option key={sem} value={sem}>
+                Semester {sem}
+              </option>
+            ))}
+          </select>
+          <select
+            name='branch'
+            value={filters.branch}
+            onChange={handleFilterChange}
+            className='w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm'
+          >
+            <option value=''>All Branches</option>
+            {['CSE', 'IT', 'ECE', 'ME', 'CE', 'EE'].map((branch) => (
+              <option key={branch} value={branch}>
+                {branch}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className='overflow-x-auto'>
           {loading ? (
             <p className='py-8 text-center text-gray-500'>Loading subjects…</p>
-          ) : subjects.length === 0 ? (
-            <p className='py-8 text-center text-gray-500'>No subjects found.</p>
+          ) : filteredSubjects.length === 0 ? (
+            <div className='rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center'>
+              <p className='text-lg font-semibold text-slate-700'>No subjects found</p>
+              <p className='mt-2 text-sm text-slate-500'>Try adjusting your filters or add a new subject.</p>
+              {canManageSubjects && (
+                <button
+                  onClick={() => setShowForm(true)}
+                  className='mt-4 rounded-full bg-blue-600 px-5 py-2 text-white hover:bg-blue-700'
+                >
+                  Add Subject
+                </button>
+              )}
+            </div>
           ) : (
             <table className='w-full text-left text-sm'>
               <thead className='bg-gray-100'>
@@ -187,15 +261,19 @@ export default function Subjects() {
                   <th className='px-4 py-3'>Code</th>
                   <th className='px-4 py-3'>Name</th>
                   <th className='px-4 py-3'>Semester</th>
+                  <th className='px-4 py-3'>Branch</th>
+                  <th className='px-4 py-3'>Teacher</th>
                   <th className='px-4 py-3 text-right'>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {subjects.map((subject) => (
+                {filteredSubjects.map((subject) => (
                   <tr key={subject._id} className='border-b hover:bg-gray-50'>
                     <td className='px-4 py-3 font-semibold text-gray-700'>{subject.subjectCode}</td>
                     <td className='px-4 py-3 text-gray-600'>{subject.subjectName}</td>
                     <td className='px-4 py-3 text-gray-600'>{subject.semester}</td>
+                    <td className='px-4 py-3 text-gray-600'>{subject.branch}</td>
+                    <td className='px-4 py-3 text-gray-600'>{subject.teacher?.name || 'Unassigned'}</td>
                     <td className='px-4 py-3 text-right'>
                       {isAdmin ? (
                         <>

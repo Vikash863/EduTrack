@@ -33,7 +33,7 @@ const router = createBrowserRouter(
     {
       path: '/students',
       element: (
-        <RoleRoute allowedRoles={['admin']}>
+        <RoleRoute allowedRoles={['teacher', 'admin']}>
           <Layout>
             <Students />
           </Layout>
