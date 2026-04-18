@@ -5,8 +5,8 @@ export const addStudent = async (req, res) => {
   try {
     const { rollNumber, name, email, semester, branch, phone, address } = req.body;
 
-    if (!rollNumber || !name || !email || !semester || !branch || !phone) {
-      return res.status(400).json({ message: 'Please provide all required fields' });
+    if (!rollNumber || !name || !email || !semester || !branch || !phone || !section) {
+      return res.status(400).json({ message: 'Please provide all required fields (including section)' });
     }
 
     const existingStudent = await Student.findOne({ $or: [{ email }, { rollNumber }] });
@@ -22,6 +22,7 @@ export const addStudent = async (req, res) => {
       branch,
       phone,
       address,
+      section,
     });
 
     await student.save();

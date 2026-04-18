@@ -18,6 +18,17 @@ const studentSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    phone: {
+      type: String,
+      required: [true, 'Please provide a phone number'],
+    },
+    dob: {
+      type: Date,
+    },
+    section: {
+      type: String,
+      required: [true, 'Please provide a section'],
+    },
     semester: {
       type: Number,
       required: [true, 'Please provide a semester'],
@@ -29,19 +40,34 @@ const studentSchema = new mongoose.Schema(
       required: [true, 'Please provide a branch'],
       enum: ['CSE', 'IT', 'ECE', 'ME', 'CE', 'EE'],
     },
+    registrationDate: {
+      type: Date,
+      default: Date.now,
+    },
     gpa: {
       type: Number,
       default: 0,
       min: 0,
       max: 10,
     },
-    phone: {
-      type: String,
-      required: [true, 'Please provide a phone number'],
+    cgpa: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 10,
     },
     address: {
       type: String,
       default: '',
+    },
+    parentContact: {
+      type: String,
+      default: '',
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'graduated'],
+      default: 'active',
     },
   },
   { timestamps: true }

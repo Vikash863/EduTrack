@@ -10,6 +10,10 @@ import Results from './pages/Results';
 import Subjects from './pages/Subjects';
 import Analytics from './pages/Analytics';
 import NotFound from './pages/NotFound';
+import StudentProfile from './pages/StudentProfile';
+import Attendance from './pages/Attendance';
+import AnalyticsPage from './pages/AnalyticsPage';
+import AdminDashboard from './pages/AdminDashboard';
 
 import Layout from './components/Layout';
 import RoleRoute from './routes/RoleRoute.jsx';
@@ -31,12 +35,36 @@ const router = createBrowserRouter(
       ),
     },
     {
+      path: '/admin-dashboard',
+      element: (
+        <RoleRoute allowedRoles={['admin']}>
+          <AdminDashboard />
+        </RoleRoute>
+      ),
+    },
+    {
       path: '/students',
       element: (
         <RoleRoute allowedRoles={['admin']}>
           <Layout>
             <Students />
           </Layout>
+        </RoleRoute>
+      ),
+    },
+    {
+      path: '/student/:studentId',
+      element: (
+        <RoleRoute allowedRoles={['admin', 'teacher', 'student']}>
+          <StudentProfile />
+        </RoleRoute>
+      ),
+    },
+    {
+      path: '/attendance',
+      element: (
+        <RoleRoute allowedRoles={['teacher', 'admin']}>
+          <Attendance />
         </RoleRoute>
       ),
     },
@@ -67,6 +95,14 @@ const router = createBrowserRouter(
           <Layout>
             <Analytics />
           </Layout>
+        </RoleRoute>
+      ),
+    },
+    {
+      path: '/analytics-dashboard',
+      element: (
+        <RoleRoute allowedRoles={['teacher', 'admin']}>
+          <AnalyticsPage />
         </RoleRoute>
       ),
     },

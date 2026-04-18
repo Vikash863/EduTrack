@@ -6,14 +6,59 @@ import {
   updateResult,
   deleteResult,
 } from '../controllers/result.controller.js';
-import auth from '../middlewares/authMiddleware.js';
+import { protect, authorize, teacherOrAdmin } from '../middlewares/rbacMiddleware.js';
+import { validateResult, validateObjectId, sanitizeInput } from '../middlewares/validation.middleware.js';
 
 const router = express.Router();
 
-router.post('/', auth, addResult);
-router.get('/', getResults);
-router.get('/:id', getResult);
-router.put('/:id', auth, updateResult);
-router.delete('/:id', auth, deleteResult);
+// ============================================
+// RESULT ROUTES
+// ============================================
+
+// Add Result (Protected - Teacher/Admin only)
+router.post(
+  '/',
+  sanitizeInput,
+  validateResult,
+  protect,
+  teacherOrAdmin,
+  addResult
+);
+
+// Get All Results
+router.get(
+  '/',
+  sanitizeInput,
+  getResults
+);
+
+// Get Single Result
+router.get(
+  '/:id',
+  sanitizeInput,
+  validateObjectId,
+  getResult
+);
+
+// Update Result (Protected - Teacher/Admin only)
+router.put(
+  '/:id',
+  sanitizeInput,
+  validateObjectId,
+  validateResult,
+  protect,
+  teacherOrAdmin,
+  updateResult
+);
+
+// Delete Result (Protected - Admin only)
+router.delete(
+  '/:id',
+  sanitizeInput,
+  validateObjectId,
+  protect,
+  authorize('admin'),
+  deleteResult
+);
 
 export default router;

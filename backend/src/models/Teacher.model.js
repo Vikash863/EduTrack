@@ -21,9 +21,62 @@ const teacherSchema = new mongoose.Schema(
       minlength: 6,
       select: false,
     },
+    phone: {
+      type: String,
+    },
+    dob: {
+      type: Date,
+    },
     department: {
       type: String,
       required: [true, 'Please provide a department'],
+    },
+    qualification: {
+      type: String,
+      default: '',
+    },
+    experience: {
+      type: Number,
+      default: 0,
+    },
+    joiningDate: {
+      type: Date,
+      default: Date.now,
+    },
+    assignedStudents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student',
+      },
+    ],
+    assignedSubjects: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject',
+      },
+    ],
+    permissions: {
+      canManageAttendance: {
+        type: Boolean,
+        default: true,
+      },
+      canManageMarks: {
+        type: Boolean,
+        default: true,
+      },
+      canViewAnalytics: {
+        type: Boolean,
+        default: true,
+      },
+      canGenerateReports: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'on-leave'],
+      default: 'active',
     },
   },
   { timestamps: true }
