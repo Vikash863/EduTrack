@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const generateToken = (id) => {
+const generateToken = (id, role = 'teacher') => {
   const secret = process.env.JWT_SECRET || 'change_this_secret';
   const expiresIn = process.env.JWT_EXPIRES_IN || '1d';
 
@@ -8,7 +8,7 @@ const generateToken = (id) => {
     console.warn('⚠️ JWT_SECRET is not defined. Using a development fallback. Set JWT_SECRET in .env for production.');
   }
 
-  return jwt.sign({ id }, secret, {
+  return jwt.sign({ id, role }, secret, {
     expiresIn,
   });
 };
